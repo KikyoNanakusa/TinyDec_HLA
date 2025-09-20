@@ -1,0 +1,12 @@
+[package]
+name = "tinydec_frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+petgraph = "0.8.2"
+capstone = "0.13.0"
+env_logger = "0.11.8"
+fmt = "0.1.0"
+goblin = "0.9.3"
+log = "0.4.27"
