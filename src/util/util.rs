@@ -26,13 +26,3 @@ pub fn parse_arguments() -> Vec<String> {
     args
 }
 
-// Split the operands into a vector of strings.
-// If the operands are not provided, return an empty vector.
-// If the operands are provided, split them by commas and trim the whitespace.
-// If the operands are empty, return an empty vector.
-#[allow(dead_code)]
-pub fn split_operands(ops: &Option<String>) -> Vec<String> {
-    ops.as_ref()
-        .map(|s| s.split(',').map(|p| p.trim().to_string()).filter(|p| !p.is_empty()).collect())
-        .unwrap_or_else(|| vec![])
-}
