@@ -1,6 +1,7 @@
 use capstone::{arch::{x86::X86OperandType, DetailsArchInsn}, Capstone, Insn};
 use anyhow::{bail, Result};
 
+
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Instruction {
