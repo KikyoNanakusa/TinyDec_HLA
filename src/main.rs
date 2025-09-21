@@ -1,5 +1,9 @@
 mod util;
 mod core;
+mod disassemble;
+mod symbol;
+mod instruction;
+
 
 fn main() {
     env_logger::init();

@@ -1,5 +1,21 @@
 use std::path::Path;
+use crate::disassemble;
+use anyhow::Result;
 
-pub fn decompile(_path: &Path) -> Result<String, String>{
+pub fn decompile(_path: &Path) -> Result<String>{
+	let instructions = disassemble::disassemble_file(_path)?;
+	let symbols = disassemble::extract_symbols(_path)?;
+	for symbol in symbols {
+		println!("Symbol: {} at 0x{:x}", symbol.name, symbol.addr);
+	}
+	println!();
+	println!("Instructions: ");
+	for instruction in instructions {
+		print!("0x{:x} {} ", instruction.address, instruction.mnemonic);
+		if let Some(operands) = instruction.operands {
+			print!("{:?}", operands);
+		}
+		println!();
+	}
 	Ok(String::from("Hello, Decompiler!"))
 }
