@@ -1,5 +1,9 @@
-use capstone::{arch::{x86::X86OperandType, DetailsArchInsn}, Capstone, Insn};
+use std::collections::HashMap;
+
+use capstone::{arch::{x86::{X86OperandType, X86Insn}, DetailsArchInsn}, Capstone, Insn};
 use anyhow::{bail, Result};
+
+
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Instruction {
@@ -47,5 +51,36 @@ impl Instruction {
 				_ => None,
 			}
 	    }))
+	}
+	pub fn is_conditional_jump(&self) -> bool {
+		self.cs_id == X86Insn::X86_INS_JE as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JNE as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JB as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JBE as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JA as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JAE as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JL as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JLE as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JG as u32 ||
+	    self.cs_id == X86Insn::X86_INS_JGE as u32
+	}
+	pub fn is_unconditional_jump(&self) -> bool {
+		self.cs_id == X86Insn::X86_INS_JMP as u32
+	}
+	pub fn is_jump(&self) -> bool {
+		self.is_conditional_jump() || self.is_unconditional_jump()
+	}
+	pub fn is_call(&self) -> bool {
+		self.cs_id == X86Insn::X86_INS_CALL as u32
+	}
+	pub fn is_ret(&self) -> bool {
+		self.cs_id == X86Insn::X86_INS_RET as u32
+	}
+	pub fn is_terminator(&self) -> bool {
+		self.is_jump() || self.is_ret()
+	}
+	pub fn get_next_insn<'a>(addr_to_insn: &'a HashMap<u64, Instruction>, current_insn: &Instruction) -> Option<&'a Instruction> {
+		let next_insn_addr = current_insn.address + current_insn.size as u64;
+		addr_to_insn.get(&next_insn_addr)
 	}
 }
