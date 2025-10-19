@@ -3,7 +3,12 @@ mod core;
 mod disassemble;
 mod symbol;
 mod instruction;
-
+mod block;
+mod block_store;
+mod edge_label;
+mod condition;
+mod cfg_construction;
+mod visualize;
 
 fn main() {
     env_logger::init();
