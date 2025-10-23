@@ -32,9 +32,9 @@ pub fn decompile(_path: &Path) -> Result<String>{
         .find(|&idx| block_store.get(*graph.node_weight(idx).unwrap()).unwrap().label == Some("main".to_string()))
         .context("Main entry not found")?;
 
-    let (main_tree, entry_node) = graph_utils::extract_reachable_subgraph(&graph, main_entry, &mut block_store);
-    let (main_tree, vexit_node) = add_virtual_exit::add_virtual_exit(main_tree, &mut block_store)?;
-    visualize::cfg_output::write_cfg_dot(&main_tree, &block_store, "main");
+    let (main_cfg, entry_node) = graph_utils::extract_reachable_subgraph(&graph, main_entry, &mut block_store);
+    let (main_cfg, vexit_node) = add_virtual_exit::add_virtual_exit(main_cfg, &mut block_store)?;
+    visualize::cfg_output::write_cfg_dot(&main_cfg, &block_store, "main");
 
 	Ok(String::from("Hello, Decompiler!"))
 }
