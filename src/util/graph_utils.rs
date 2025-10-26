@@ -86,13 +86,13 @@ pub fn calc_post_dominator(cfg: &Cfg, virtual_exit_node: NodeIndex) -> Dominator
 /// Quick cycle predicate: true if `target` has an outgoing edge to a node that dominates it.
 /// Skips the designated `exit` node.
 #[allow(dead_code)]
-pub fn is_cyclic(
+pub fn has_backedge(
     cfg: &Cfg, 
     target: NodeIndex, 
-    exit: NodeIndex, 
+    vexit: NodeIndex, 
     dom: &Dominators<NodeIndex>
 ) -> bool {
-	if target == exit { return false }
+	if target == vexit { return false }
 	for edge in cfg.edges_directed(target, Outgoing) {
 		let head = edge.target();
 		if dominates(head, target, &dom) { 
@@ -110,15 +110,6 @@ pub fn find_entry_node(cfg: &Cfg) -> Option<NodeIndex> {
         .node_indices()
         .filter(|&n| cfg.edges_directed(n, Incoming).count() == 0);
     entries.find(|&n| cfg.neighbors(n).count() > 0)
-}
-
-/// Compute DFS post-order from `entry_node`.
-#[allow(dead_code)]
-pub fn get_dfs_post_order(cfg: &Cfg, entry_node: NodeIndex) -> Vec<NodeIndex> {
-    let mut dfs = DfsPostOrder::new(&cfg, entry_node);
-    let mut order = Vec::new();
-    while let Some(n) = dfs.next(&cfg) { order.push(n); }
-    order
 }
 
 /// Remove a set of nodes from the graph in descending `NodeIndex` order.

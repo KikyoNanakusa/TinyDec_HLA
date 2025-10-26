@@ -9,6 +9,8 @@ mod edge_label;
 mod condition;
 mod cfg_construction;
 mod visualize;
+mod region; 
+mod region_arena;
 
 fn main() {
     env_logger::init();
