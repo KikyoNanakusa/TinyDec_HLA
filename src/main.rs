@@ -13,6 +13,8 @@ mod region;
 mod region_arena;
 mod cfg_structuring;
 mod raw_loop;
+mod codegen;
+
 fn main() {
     env_logger::init();
     util::clear_dot_files();

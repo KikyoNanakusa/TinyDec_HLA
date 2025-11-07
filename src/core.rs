@@ -1,5 +1,5 @@
 use std::{collections::HashMap, path::Path};
-use crate::{block::BlockId, block_store::BlockStore, cfg_construction::{self, add_virtual_exit::{self, add_virtual_exit}}, cfg_structuring::{acyclic_match::match_acyclic, cyclic_match::{contract_cyclic_region, find_smallest_loop, match_cyclic}}, disassemble, instruction::Instruction, region::{Region, RegionId}, region_arena::RegionArena, symbol::Symbol, util::graph_utils::{self, find_entry_node, has_backedge}, visualize::{self, arena_output::print_arena_tree, cfg_output::write_cfg_dot}};
+use crate::{block::BlockId, block_store::BlockStore, cfg_construction::{self, add_virtual_exit::{self, add_virtual_exit}}, cfg_structuring::{acyclic_match::match_acyclic, cyclic_match::{contract_cyclic_region, find_smallest_loop, match_cyclic}}, codegen::generate_function, disassemble, instruction::Instruction, region::{Region, RegionId}, region_arena::RegionArena, symbol::Symbol, util::graph_utils::{self, find_entry_node, has_backedge}, visualize::{self, arena_output::print_arena_tree, cfg_output::write_cfg_dot}};
 use anyhow::{Context, Result};
 use petgraph::{algo::dominators::simple_fast, visit::DfsPostOrder};
 
@@ -28,9 +28,10 @@ pub fn decompile(_path: &Path) -> Result<String>{
     label_blocks(&mut block_store, &mut block_ids, &symbols);
 
     let graph = cfg_construction::construct_graph(&addr_to_insn, &mut block_store)?;
+    let target_function_name = "main".to_string();
     let main_entry = graph
         .node_indices()
-        .find(|&idx| block_store.get(*graph.node_weight(idx).unwrap()).unwrap().label == Some("main".to_string()))
+        .find(|&idx| block_store.get(*graph.node_weight(idx).unwrap()).unwrap().label == Some(target_function_name.clone()))
         .context("Main entry not found")?;
 
     let (main_cfg, entry_node) = graph_utils::extract_reachable_subgraph(&graph, main_entry, &mut block_store);
@@ -112,12 +113,11 @@ pub fn decompile(_path: &Path) -> Result<String>{
         if !progress { break; }
     }
 
-    if main_cfg.node_count() == 2 {
-        main_cfg.remove_node(vexit_node);
-        let root_node = main_cfg.node_indices().next().context("root node not found")?;
-        let root_bid = *main_cfg.node_weight(root_node).context("root node weight not found")?;
-        let root_rid = block_id_to_rid.get(&root_bid).context("root region not found for root block")?;
-        visualize::arena_output::print_arena_tree(*root_rid, &arena);
-    }
-	Ok(String::from("Hello, Decompiler!"))
+    main_cfg.remove_node(vexit_node);
+    let root_node = main_cfg.node_indices().next().context("root node not found")?;
+    let root_bid = *main_cfg.node_weight(root_node).context("root node weight not found")?;
+    let root_rid = block_id_to_rid.get(&root_bid).context("root region not found for root block")?;
+    print_arena_tree(*root_rid, &arena);
+    let code = generate_function(&arena, *root_rid, &block_store, &target_function_name, &virtualized_edges);
+    Ok(code)
 }
