@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 use petgraph::algo::dominators::{simple_fast, Dominators};
-use petgraph::visit::{DfsPostOrder, Reversed};
+use petgraph::visit::Reversed;
 use petgraph::Direction::{Incoming, Outgoing};
 use petgraph::{graph::NodeIndex, visit::EdgeRef};
 use petgraph::prelude::StableGraph;

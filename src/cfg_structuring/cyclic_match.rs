@@ -27,7 +27,7 @@ pub fn match_cyclic(
 	let virtualized_tail_edges = virtualize_loop_tails(cfg, raw_loop, &succ_info, &body, block_store);
 	tail_edges.extend(virtualized_tail_edges);
 	let structured_loop = StructuredLoop::build_structured_loop(raw_loop, succ_info.kind, single_entry, 
-		succ_info.succ, succ_info.exit_edge, cfg, &tail_edges, &body);
+		succ_info.succ, succ_info.exit_edge, cfg, &body);
 	(structured_loop, tail_edges)
 }
 

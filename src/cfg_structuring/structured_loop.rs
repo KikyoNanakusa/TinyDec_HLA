@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use petgraph::graph::{EdgeIndex, Node, NodeIndex};
+use petgraph::graph::{EdgeIndex, NodeIndex};
 
 use crate::raw_loop::RawLoop;
 use crate::{block::BlockId, condition::Condition, edge_label::EdgeLabel};
@@ -17,7 +17,6 @@ pub struct StructuredLoop {
 	pub succ: Option<BlockId>,
 	pub body: HashSet<BlockId>, // lexical containment
 	pub exit_edge: Option<EdgeIndex>,
-	pub tails: Vec<(BlockId /* source */, BlockId /* target */, EdgeLabel)>,
     pub cond: Option<Condition>,
 }
 
@@ -29,11 +28,10 @@ impl StructuredLoop {
 		entry: BlockId, 
 		succ: Option<BlockId>, 
 		body: HashSet<BlockId>, 
-		tails: Vec<(BlockId, BlockId, EdgeLabel)>, 
 		exit_edge: Option<EdgeIndex>, 
 		cond: Option<Condition>
 	) -> Self {
-		Self { index, kind, head, entry, succ, body, tails, exit_edge, cond }
+		Self { index, kind, head, entry, succ, body, exit_edge, cond }
 	}
 	pub fn build_structured_loop(
 		raw_loop: &RawLoop, 
@@ -42,7 +40,6 @@ impl StructuredLoop {
 		single_succ: Option<NodeIndex>, 
 		single_exit_edge: Option<EdgeIndex>,
 		cfg: &Cfg, 
-		tails: &Vec<(BlockId, BlockId, EdgeLabel)>, 
 		body: &HashSet<BlockId>
 	) -> StructuredLoop {
 		let id = raw_loop.loop_index;
@@ -54,8 +51,10 @@ impl StructuredLoop {
 		StructuredLoop::new(
 			id, kind, head, 
 			entry, succ,
-			body.clone(), tails.clone(), 
-			single_exit_edge, cond)
+			body.clone(), 
+			single_exit_edge, 
+			cond
+		)
 	}
 }
 
