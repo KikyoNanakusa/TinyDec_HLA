@@ -11,7 +11,8 @@ mod cfg_construction;
 mod visualize;
 mod region; 
 mod region_arena;
-
+mod cfg_structuring;
+mod raw_loop;
 fn main() {
     env_logger::init();
     util::clear_dot_files();

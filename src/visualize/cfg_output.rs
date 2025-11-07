@@ -12,7 +12,7 @@ fn edge_label_and_style(label: &EdgeLabel) -> (&'static str, &'static str) {
         EdgeLabel::TrueBranch(_)      => ("True",       "color=green"),
         EdgeLabel::FalseBranch(_)     => ("False",      "color=red"),
         EdgeLabel::Unconditional      => ("",           "color=black"),
-        EdgeLabel::Virtualized        => ("Virtualized", "color=gray, style=dashed"),
+        EdgeLabel::Virtualized(_)     => ("Virtualized", "color=gray, style=dashed"),
     }
 }
 
@@ -64,7 +64,7 @@ pub fn write_cfg_dot(
         let w = e.weight();
 
         if SKIP_VIRTUALIZED_EDGES {
-            if matches!(w, EdgeLabel::Virtualized) {
+            if matches!(w, EdgeLabel::Virtualized(_)) {
                 continue;
             }
         }
