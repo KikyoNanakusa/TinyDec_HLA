@@ -8,7 +8,9 @@
 実装を始める際は, 本リポジトリをクローンして`template`ブランチに移動してください. 
 
 ```bash
-
+git clone git@github.com:KikyoNanakusa/TinyDec_HLA.git
+cd TinyDec_HLA
+git checkout template
 ```
 
 ## ブランチ
