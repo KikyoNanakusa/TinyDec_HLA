@@ -3,18 +3,16 @@ use petgraph::visit::IntoEdgeReferences;
 use petgraph::{prelude::StableGraph, visit::EdgeRef};
 use petgraph::graph::NodeIndex;
 
-use crate::{block, edge_label};
+use crate::block::BlockId;
+use crate::block_store::BlockStore;
+use crate::edge_label::EdgeLabel;
 
-fn edge_label_and_style(label: &edge_label::EdgeLabel) -> (&'static str, &'static str) {
+fn edge_label_and_style(label: &EdgeLabel) -> (&'static str, &'static str) {
     match label {
-        edge_label::EdgeLabel::TrueBranch(_)      => ("True",       "color=green"),
-        edge_label::EdgeLabel::FalseBranch(_)     => ("False",      "color=red"),
-        edge_label::EdgeLabel::Unconditional      => ("",           "color=black"),
-        edge_label::EdgeLabel::Virtualized(tail) => match tail {
-            edge_label::TailKind::Break    { .. } => ("Break",    "color=gray, style=dashed"),
-            edge_label::TailKind::Continue { .. } => ("Continue", "color=gray, style=dashed"),
-            edge_label::TailKind::Goto     { .. } => ("Goto",     "color=gray, style=dashed"),
-        },
+        EdgeLabel::TrueBranch(_)      => ("True",       "color=green"),
+        EdgeLabel::FalseBranch(_)     => ("False",      "color=red"),
+        EdgeLabel::Unconditional      => ("",           "color=black"),
+        EdgeLabel::Virtualized(_)     => ("Virtualized", "color=gray, style=dashed"),
     }
 }
 
@@ -25,8 +23,8 @@ fn escape_html(s: &str) -> String {
 }
 
 pub fn write_cfg_dot(
-    cfg: &StableGraph<block::BlockId, edge_label::EdgeLabel>,
-	block_store: &block::BlockStore,
+    cfg: &StableGraph<BlockId, EdgeLabel>,
+	block_store: &BlockStore,
     filename: &str,
 ) {
     const SKIP_VIRTUALIZED_EDGES: bool = true;
@@ -66,7 +64,7 @@ pub fn write_cfg_dot(
         let w = e.weight();
 
         if SKIP_VIRTUALIZED_EDGES {
-            if matches!(w, edge_label::EdgeLabel::Virtualized(_)) {
+            if matches!(w, EdgeLabel::Virtualized(_)) {
                 continue;
             }
         }

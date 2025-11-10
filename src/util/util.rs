@@ -20,9 +20,8 @@ pub fn clear_dot_files() {
 pub fn parse_arguments() -> Vec<String> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 2 {
-     eprintln!("Usage: {} <file>", args[0]);
-     std::process::exit(1);
+        eprintln!("Usage: {} <file>", args[0]);
+        std::process::exit(1);
     }
     args
 }
-

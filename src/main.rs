@@ -1,6 +1,5 @@
-mod util;
 mod core;
-
+mod util;
 
 fn main() {
     env_logger::init();
