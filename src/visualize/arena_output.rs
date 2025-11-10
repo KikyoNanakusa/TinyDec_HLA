@@ -1,4 +1,5 @@
-use crate::cfg_structuring::region::{Region, RegionArena, RegionId};
+use crate::region::{Region, RegionId};
+use crate::region_arena::RegionArena;
 
 fn indent(buf: &mut String, n: usize) { for _ in 0..n { buf.push_str("  "); } }
 
