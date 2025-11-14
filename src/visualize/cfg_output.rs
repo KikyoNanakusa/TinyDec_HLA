@@ -1,32 +1,30 @@
-use std::{fs::File, io::Write, process::Command};
+use petgraph::graph::NodeIndex;
 use petgraph::visit::IntoEdgeReferences;
 use petgraph::{prelude::StableGraph, visit::EdgeRef};
-use petgraph::graph::NodeIndex;
+use std::{fs::File, io::Write, process::Command};
 
-use crate::{block, edge_label};
+use crate::block::BlockId;
+use crate::block_store::BlockStore;
+use crate::edge_label::EdgeLabel;
 
-fn edge_label_and_style(label: &edge_label::EdgeLabel) -> (&'static str, &'static str) {
+fn edge_label_and_style(label: &EdgeLabel) -> (&'static str, &'static str) {
     match label {
-        edge_label::EdgeLabel::TrueBranch(_)      => ("True",       "color=green"),
-        edge_label::EdgeLabel::FalseBranch(_)     => ("False",      "color=red"),
-        edge_label::EdgeLabel::Unconditional      => ("",           "color=black"),
-        edge_label::EdgeLabel::Virtualized(tail) => match tail {
-            edge_label::TailKind::Break    { .. } => ("Break",    "color=gray, style=dashed"),
-            edge_label::TailKind::Continue { .. } => ("Continue", "color=gray, style=dashed"),
-            edge_label::TailKind::Goto     { .. } => ("Goto",     "color=gray, style=dashed"),
-        },
+        EdgeLabel::TrueBranch(_) => ("True", "color=green"),
+        EdgeLabel::FalseBranch(_) => ("False", "color=red"),
+        EdgeLabel::Unconditional => ("", "color=black"),
+        EdgeLabel::Virtualized(_) => ("Virtualized", "color=gray, style=dashed"),
     }
 }
 
 fn escape_html(s: &str) -> String {
     s.replace('&', "&amp;")
-     .replace('<', "&lt;")
-     .replace('>', "&gt;")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;")
 }
 
 pub fn write_cfg_dot(
-    cfg: &StableGraph<block::BlockId, edge_label::EdgeLabel>,
-	block_store: &block::BlockStore,
+    cfg: &StableGraph<BlockId, EdgeLabel>,
+    block_store: &BlockStore,
     filename: &str,
 ) {
     const SKIP_VIRTUALIZED_EDGES: bool = true;
@@ -47,7 +45,13 @@ pub fn write_cfg_dot(
         let block_id = *cfg.node_weight(n).expect("missing node weight");
         let block = block_store.get(block_id).expect("missing block");
         let block_str = if let Some(label) = &block.label {
-            format!("NodeIndex({}), BlockId({}) {}:\n{}", n.index(), block_id, label, block)
+            format!(
+                "NodeIndex({}), BlockId({}) {}:\n{}",
+                n.index(),
+                block_id,
+                label,
+                block
+            )
         } else {
             format!("NodeIndex({}), BlockId({}) {}", n.index(), block_id, block)
         };
@@ -66,14 +70,15 @@ pub fn write_cfg_dot(
         let w = e.weight();
 
         if SKIP_VIRTUALIZED_EDGES {
-            if matches!(w, edge_label::EdgeLabel::Virtualized(_)) {
+            if matches!(w, EdgeLabel::Virtualized(_)) {
                 continue;
             }
         }
 
         let (label, style) = edge_label_and_style(w);
         if label.is_empty() {
-            writeln!(file, "  n{} -> n{} [{}];", u.index(), v.index(), style).expect("write failed");
+            writeln!(file, "  n{} -> n{} [{}];", u.index(), v.index(), style)
+                .expect("write failed");
         } else {
             writeln!(
                 file,
@@ -113,3 +118,4 @@ pub fn write_cfg_dot(
         println!("{} successfully generated", png_name);
     }
 }
+
